@@ -1,0 +1,8 @@
+# Material 3 Expressive, muted cream + charcoal palette (no blue / indigo / purple)
+[theme]
+base = "light"
+primaryColor = "#262522"
+backgroundColor = "#EDE7DA"
+secondaryBackgroundColor = "#E4DDCD"
+textColor = "#1E1D1A"
+font = "sans serif"

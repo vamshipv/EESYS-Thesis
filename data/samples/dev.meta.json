@@ -1,0 +1,32 @@
+{
+  "name": "dev",
+  "dataset": "google-research-datasets/go_emotions",
+  "config": "simplified",
+  "revision": "add492243ff905527e67aeb8b80c082af02207c3",
+  "datasets_version": "5.2.0",
+  "split": "validation",
+  "seed": 42,
+  "n_per_label": 10,
+  "word_filter": {
+    "min_words": 5,
+    "max_words": 15
+  },
+  "available_per_emotion": {
+    "anger": 59,
+    "disgust": 28,
+    "fear": 34,
+    "joy": 51,
+    "sadness": 35,
+    "surprise": 45
+  },
+  "sampled_per_emotion": {
+    "anger": 10,
+    "disgust": 10,
+    "fear": 10,
+    "joy": 10,
+    "sadness": 10,
+    "surprise": 10
+  },
+  "total": 60,
+  "created": "2026-11-21T11:09:58+00:00"
+}

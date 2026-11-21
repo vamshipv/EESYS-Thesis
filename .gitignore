@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Secrets (API keys, HF tokens)
+.env
+.env.*
+
+# Model call caches and run outputs (large / regenerable)
+cache/
+results/runs/
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
