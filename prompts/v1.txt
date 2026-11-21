@@ -1,0 +1,4 @@
+Classify the emotion of the text. Answer with exactly one word from: {labels}.
+
+Text: {text}
+Emotion:

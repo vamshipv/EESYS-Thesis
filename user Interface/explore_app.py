@@ -302,6 +302,11 @@ def matrix_tab(rows: list[dict]) -> None:
 def main() -> None:
     st.set_page_config(page_title="Emotion check", page_icon="🌿", layout="centered")
     st.html(CSS)  # style-only HTML is applied globally (Streamlit >= 1.33)
+    if "eesys-thesis" not in sys.prefix:
+        st.warning(
+            f"Running on {sys.executable}, not the thesis env, so the Transformers backend "
+            "won't work. Stop this server and start it with `user Interface/run_app.ps1`."
+        )
     st.title("Emotion check")
     st.caption("Exploration viewer · Llama 3.1 8B via Ollama · first-token logprobs")
 

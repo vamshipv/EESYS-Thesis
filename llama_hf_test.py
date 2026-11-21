@@ -23,7 +23,9 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from data import load_samples
 
 LABELS = ["anger", "disgust", "fear", "joy", "sadness", "surprise"]
-MODEL_ID = os.environ.get("LLAMA_MODEL_ID", "meta-llama/Llama-3.1-8B-Instruct")
+# Ungated copy of the same weights (Meta access not granted); see 02_Decisions 2026-11-21.
+MODEL_ID = os.environ.get("LLAMA_MODEL_ID", "unsloth/Llama-3.1-8B-Instruct")
+MODEL_REVISION = os.environ.get("LLAMA_MODEL_REVISION", "4699cc75b550f9c6f3173fb80f4703b62d946aa5")
 GPU_MEM = os.environ.get("LLAMA_GPU_MEM", "6.5GiB")   # leave headroom on the 8 GB card
 CPU_MEM = os.environ.get("LLAMA_CPU_MEM", "6GiB")     # 16 GB RAM total; rest goes to disk
 # Outside OneDrive on purpose: several GB of offloaded weights shouldn't sync.
@@ -33,7 +35,7 @@ OFFLOAD_DIR = Path(os.environ.get("LLAMA_OFFLOAD_DIR", Path.home() / ".cache" / 
 def build_prompt(text: str) -> str:
     """Same prompt text as ollama_calls_test.py, so the two backends are comparable."""
     return (
-        "Classify the emotion of the text. Answer with exactly one word from: "
+        "Classify the emotion of the text. Answer in lowercase with exactly one word from: "
         + ", ".join(LABELS) + ".\n\nText: " + text + "\nEmotion:"
     )
 
@@ -42,17 +44,17 @@ def build_prompt(text: str) -> str:
 def load_model() -> tuple:
     """Load tokenizer + bf16 model once per process, offloading what doesn't fit on the GPU."""
     OFFLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    tok = AutoTokenizer.from_pretrained(MODEL_ID)
+    tok = AutoTokenizer.from_pretrained(MODEL_ID, revision=MODEL_REVISION)
     max_memory = {"cpu": CPU_MEM}
     if torch.cuda.is_available():
         max_memory[0] = GPU_MEM
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID,
-        torch_dtype=torch.bfloat16,
+        revision=MODEL_REVISION,
+        dtype=torch.bfloat16,  # transformers 5 name (was torch_dtype)
         device_map="auto",
         max_memory=max_memory,
         offload_folder=str(OFFLOAD_DIR),
-        low_cpu_mem_usage=True,
     )
     model.eval()
     return tok, model, label_token_ids(tok)
@@ -81,8 +83,8 @@ def predict_details(text: str) -> dict:
     tok, model, label_ids = load_model()
     messages = [{"role": "user", "content": build_prompt(text)}]
     input_ids = tok.apply_chat_template(
-        messages, add_generation_prompt=True, return_tensors="pt"
-    ).to(model.device)
+        messages, add_generation_prompt=True, return_tensors="pt", return_dict=True
+    )["input_ids"].to(model.device)  # transformers 5 returns a BatchEncoding
 
     t0 = time.perf_counter()
     with torch.no_grad():

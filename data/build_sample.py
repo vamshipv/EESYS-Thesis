@@ -11,6 +11,9 @@ Sets used in the thesis:
     dev   (built by running this file):
         build_sample(split="validation", n_per_label=10, seed=42,
                      min_words=5, max_words=15, out_name="dev")
+    dev_large (prompt comparison, 2026-11-21, one-off command; contains dev):
+        build_sample(split="validation", n_per_label=25, seed=42,
+                     min_words=5, max_words=15, out_name="dev_large")
     final (later, NOT run from here):
         build_sample(split="test", n_per_label=50, seed=42,
                      out_name="final", allow_test=True)

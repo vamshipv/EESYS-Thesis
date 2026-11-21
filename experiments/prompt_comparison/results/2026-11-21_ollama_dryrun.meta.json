@@ -1,0 +1,77 @@
+{
+  "sessions": [
+    {
+      "start": "2026-11-21T21:23:14+00:00",
+      "args": {
+        "backend": "ollama",
+        "sample": "dev_large",
+        "versions": [
+          "v1",
+          "v2",
+          "v3"
+        ],
+        "orders": [
+          "O1"
+        ],
+        "limit": null,
+        "tag": "dryrun",
+        "model": "llama3.1"
+      },
+      "end": "2026-11-21T21:26:26+00:00"
+    }
+  ],
+  "sample": "dev_large",
+  "limit": null,
+  "backend": "ollama",
+  "versions": [
+    "v1",
+    "v2",
+    "v3"
+  ],
+  "orders": [
+    "O1"
+  ],
+  "prompt_hashes": {
+    "v1": "d9250dd0ca98",
+    "v2": "aa283b52fffd",
+    "v3": "bcf65961ce96"
+  },
+  "git_commit": "23d401c-dirty",
+  "model": {
+    "name": "llama3.1:latest",
+    "digest": "46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+    "parent_model": "",
+    "format": "gguf",
+    "family": "llama",
+    "families": [
+      "llama"
+    ],
+    "parameter_size": "8.0B",
+    "quantization_level": "Q4_K_M",
+    "context_length": 131072,
+    "embedding_length": 4096,
+    "runner": "ggml"
+  },
+  "decoding": {
+    "temperature": 0,
+    "num_predict": 3,
+    "top_logprobs": 20
+  },
+  "label_token_rule": {
+    "min_prefix_chars": 3,
+    "exact_first_tokens": {
+      "anger": "anger",
+      "Ang": "anger",
+      "dis": "disgust",
+      "Dis": "disgust",
+      "f": "fear",
+      "Fear": "fear",
+      "joy": "joy",
+      "Joy": "joy",
+      "sad": "sadness",
+      "Sad": "sadness",
+      "sur": "surprise",
+      "Sur": "surprise"
+    }
+  }
+}

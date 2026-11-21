@@ -84,3 +84,10 @@ def test_loader_rejects_bad_file(seed42, tmp_path):
     (tmp_path / "bad.meta.json").write_text(json.dumps({"total": len(rows) + 1}), encoding="utf-8")
     with pytest.raises(ValueError, match="duplicate"):
         load_samples("bad", samples_dir=tmp_path)
+
+
+def test_load_dev_large_contains_dev():
+    big = load_samples("dev_large")
+    assert len(big) == 150
+    assert Counter(s.label for s in big) == {e: 25 for e in EMOTIONS}
+    assert {s.id for s in load_samples("dev")} <= {s.id for s in big}

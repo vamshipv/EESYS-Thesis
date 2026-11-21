@@ -1,0 +1,1274 @@
+{
+  "model": "unsloth/Llama-3.1-8B-Instruct",
+  "revision": "4699cc75b550f9c6f3173fb80f4703b62d946aa5",
+  "dtype": "bfloat16",
+  "created": "2026-11-21T21:45:15+00:00",
+  "summary": {
+    "v2 fear": {
+      "n": 10,
+      "min_p_ear_given_f": 0.9995208978652954,
+      "mean_p_ear_given_f": 0.9999022781848907,
+      "mean_p_f": 0.490729278762592
+    },
+    "v2 non-fear": {
+      "n": 10,
+      "min_p_ear_given_f": 0.8502618074417114,
+      "mean_p_ear_given_f": 0.9675947248935699,
+      "mean_p_f": 0.003955049137584865
+    },
+    "v3 fear": {
+      "n": 10,
+      "min_p_ear_given_f": 0.9995571970939636,
+      "mean_p_ear_given_f": 0.9999199569225311,
+      "mean_p_f": 0.5589539664895711
+    },
+    "v3 non-fear": {
+      "n": 10,
+      "min_p_ear_given_f": 0.49708467721939087,
+      "mean_p_ear_given_f": 0.917482876777649,
+      "mean_p_f": 0.0015935779880805966
+    }
+  },
+  "rows": [
+    {
+      "id": "ed0s890",
+      "text": "I’m afraid too. It’s the not knowing what will happen that scares me.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.9999114274978638,
+      "p_ear_given_f": 0.9999905824661255,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999905824661255
+        },
+        {
+          "token": "right",
+          "prob": 2.9022933176747756e-06
+        },
+        {
+          "token": "ears",
+          "prob": 1.994714921238483e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 1.5534856174781453e-06
+        },
+        {
+          "token": " ear",
+          "prob": 1.370946165479836e-06
+        }
+      ],
+      "seconds": 32.79126129997894
+    },
+    {
+      "id": "edt81gk",
+      "text": "Top 10 nibbas satan's too afraid to torture.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.059782758355140686,
+      "p_ear_given_f": 0.9999220371246338,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999220371246338
+        },
+        {
+          "token": "right",
+          "prob": 2.144373684132006e-05
+        },
+        {
+          "token": "ears",
+          "prob": 1.777748366293963e-05
+        },
+        {
+          "token": "ury",
+          "prob": 8.397487363254186e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 7.888709660619497e-06
+        }
+      ],
+      "seconds": 24.617376499983948
+    },
+    {
+      "id": "edcxlpz",
+      "text": "There was a horrible accident",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.002176807262003422,
+      "p_ear_given_f": 0.9999457597732544,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999457597732544
+        },
+        {
+          "token": "right",
+          "prob": 4.0063121559796855e-05
+        },
+        {
+          "token": "ears",
+          "prob": 5.421954028861364e-06
+        },
+        {
+          "token": " ear",
+          "prob": 3.2885816381167388e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 2.5611498131183907e-06
+        }
+      ],
+      "seconds": 23.49009360000491
+    },
+    {
+      "id": "ee2lna8",
+      "text": "It happens so much that it really scares me tbh.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.9995092153549194,
+      "p_ear_given_f": 0.9999785423278809,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999785423278809
+        },
+        {
+          "token": "right",
+          "prob": 1.0129875590791926e-05
+        },
+        {
+          "token": "ears",
+          "prob": 3.7265731407387648e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 2.5612337140046293e-06
+        },
+        {
+          "token": " ear",
+          "prob": 2.123337480952614e-06
+        }
+      ],
+      "seconds": 25.35047669999767
+    },
+    {
+      "id": "ee1u7av",
+      "text": "It’s gonna be a large group interview in a shady office. Ghost em.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.32519879937171936,
+      "p_ear_given_f": 0.9999758005142212,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999758005142212
+        },
+        {
+          "token": "right",
+          "prob": 1.012984739645617e-05
+        },
+        {
+          "token": "ears",
+          "prob": 5.422116828412982e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 2.726411821640795e-06
+        },
+        {
+          "token": " ear",
+          "prob": 2.726411821640795e-06
+        }
+      ],
+      "seconds": 28.213151999982074
+    },
+    {
+      "id": "eegpyf2",
+      "text": "If an AI projectile is your biggest problem you've got bigger issues, next.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.004102744162082672,
+      "p_ear_given_f": 0.9997349381446838,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9997349381446838
+        },
+        {
+          "token": "ury",
+          "prob": 0.00012337708903942257
+        },
+        {
+          "token": "right",
+          "prob": 3.534813004080206e-05
+        },
+        {
+          "token": "ears",
+          "prob": 2.5861245376290753e-05
+        },
+        {
+          "token": "EAR",
+          "prob": 1.2215986316732597e-05
+        }
+      ],
+      "seconds": 23.939422099967487
+    },
+    {
+      "id": "edew673",
+      "text": "I would be afraid he would come back and somehow blame me for his failure.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.9959827661514282,
+      "p_ear_given_f": 0.9999871253967285,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999871253967285
+        },
+        {
+          "token": "right",
+          "prob": 3.7266052004270023e-06
+        },
+        {
+          "token": "ears",
+          "prob": 3.288717607574654e-06
+        },
+        {
+          "token": " ear",
+          "prob": 2.1233556708466494e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 1.9947081000282196e-06
+        }
+      ],
+      "seconds": 23.55855860002339
+    },
+    {
+      "id": "efg7lsu",
+      "text": "i have bought this but not played. i'm scared. hold me.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.9728561639785767,
+      "p_ear_given_f": 0.9999821186065674,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999821186065674
+        },
+        {
+          "token": "right",
+          "prob": 8.939616236602888e-06
+        },
+        {
+          "token": "ears",
+          "prob": 3.726586555785616e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 1.6536628208996262e-06
+        },
+        {
+          "token": " ear",
+          "prob": 1.4593522337236209e-06
+        }
+      ],
+      "seconds": 26.367901799967512
+    },
+    {
+      "id": "eejxmnj",
+      "text": "Matinee games always scare me, but I have confidence in this team. LGI!",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.5471946001052856,
+      "p_ear_given_f": 0.9999849796295166,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999849796295166
+        },
+        {
+          "token": "ears",
+          "prob": 6.962200131965801e-06
+        },
+        {
+          "token": " ear",
+          "prob": 3.288710558990715e-06
+        },
+        {
+          "token": "right",
+          "prob": 1.6536675957468105e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 9.422313382856373e-07
+        }
+      ],
+      "seconds": 29.58602589997463
+    },
+    {
+      "id": "eeuhyfj",
+      "text": "Venezuela has uniquely terrible oil.",
+      "gold": "fear",
+      "version": "v2",
+      "p_f": 0.0005775053869001567,
+      "p_ear_given_f": 0.9995208978652954,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9995208978652954
+        },
+        {
+          "token": "ury",
+          "prob": 0.00029590289341285825
+        },
+        {
+          "token": "right",
+          "prob": 5.473653072840534e-05
+        },
+        {
+          "token": "ears",
+          "prob": 2.0136445527896285e-05
+        },
+        {
+          "token": " ear",
+          "prob": 1.3839562598150223e-05
+        }
+      ],
+      "seconds": 30.661082900012843
+    },
+    {
+      "id": "eczhm1p",
+      "text": "You mean defy their nation's people and f*ck them over.",
+      "gold": "anger",
+      "version": "v2",
+      "p_f": 3.5299017326906323e-05,
+      "p_ear_given_f": 0.8502618074417114,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.8502618074417114
+        },
+        {
+          "token": "ury",
+          "prob": 0.14775332808494568
+        },
+        {
+          "token": "urious",
+          "prob": 0.0009955541463568807
+        },
+        {
+          "token": "right",
+          "prob": 0.0001841589983087033
+        },
+        {
+          "token": "ierce",
+          "prob": 9.260096703656018e-05
+        }
+      ],
+      "seconds": 27.01147620001575
+    },
+    {
+      "id": "efh5nbl",
+      "text": "I would absolutely hate it if they used it in the games tbh",
+      "gold": "anger",
+      "version": "v2",
+      "p_f": 0.0007621141849085689,
+      "p_ear_given_f": 0.9998756647109985,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9998756647109985
+        },
+        {
+          "token": "ury",
+          "prob": 3.7633184547303244e-05
+        },
+        {
+          "token": "right",
+          "prob": 1.5687846826040186e-05
+        },
+        {
+          "token": "ears",
+          "prob": 1.473736574553186e-05
+        },
+        {
+          "token": " ear",
+          "prob": 1.3844474779034499e-05
+        }
+      ],
+      "seconds": 26.560828700021375
+    },
+    {
+      "id": "ef9aoxl",
+      "text": "That mustache looks like it smells.",
+      "gold": "disgust",
+      "version": "v2",
+      "p_f": 1.8883602024288848e-05,
+      "p_ear_given_f": 0.9977996945381165,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9977996945381165
+        },
+        {
+          "token": "right",
+          "prob": 0.0007086117984727025
+        },
+        {
+          "token": "asc",
+          "prob": 0.0003792925854213536
+        },
+        {
+          "token": "aint",
+          "prob": 0.0002448896993882954
+        },
+        {
+          "token": "ellow",
+          "prob": 9.008988126879558e-05
+        }
+      ],
+      "seconds": 25.04296200000681
+    },
+    {
+      "id": "efgaatk",
+      "text": "This is why I stopped watching. :( The brutality was disgusting.",
+      "gold": "disgust",
+      "version": "v2",
+      "p_f": 7.40584873710759e-05,
+      "p_ear_given_f": 0.9992504715919495,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9992504715919495
+        },
+        {
+          "token": "right",
+          "prob": 0.00040434187394566834
+        },
+        {
+          "token": "ears",
+          "prob": 4.536590495263226e-05
+        },
+        {
+          "token": "ury",
+          "prob": 3.5331002436578274e-05
+        },
+        {
+          "token": "asc",
+          "prob": 3.319040115457028e-05
+        }
+      ],
+      "seconds": 24.66384339996148
+    },
+    {
+      "id": "eekn8hb",
+      "text": "I played that one. It was really fun(at least to me, as a kid).",
+      "gold": "joy",
+      "version": "v2",
+      "p_f": 0.00015323044499382377,
+      "p_ear_given_f": 0.9701813459396362,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9701813459396362
+        },
+        {
+          "token": "ond",
+          "prob": 0.025854457169771194
+        },
+        {
+          "token": "ellow",
+          "prob": 0.000884690904058516
+        },
+        {
+          "token": "elic",
+          "prob": 0.0004735409456770867
+        },
+        {
+          "token": "asc",
+          "prob": 0.000417898379964754
+        }
+      ],
+      "seconds": 24.292425199993886
+    },
+    {
+      "id": "edsvx30",
+      "text": "Different personalities, I've always been like that with friends and family.",
+      "gold": "joy",
+      "version": "v2",
+      "p_f": 0.0011022586841136217,
+      "p_ear_given_f": 0.9973226189613342,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9973226189613342
+        },
+        {
+          "token": "amiliar",
+          "prob": 0.0014994138618931174
+        },
+        {
+          "token": "ellow",
+          "prob": 0.00026055905618704855
+        },
+        {
+          "token": "elic",
+          "prob": 0.00014846207341179252
+        },
+        {
+          "token": "asc",
+          "prob": 0.0001310173247475177
+        }
+      ],
+      "seconds": 24.296033399994485
+    },
+    {
+      "id": "edwl3i2",
+      "text": "As a former [NAME], I apologize. That’s tough",
+      "gold": "sadness",
+      "version": "v2",
+      "p_f": 3.518289668136276e-05,
+      "p_ear_given_f": 0.9997274279594421,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9997274279594421
+        },
+        {
+          "token": "ellow",
+          "prob": 9.608545951778069e-05
+        },
+        {
+          "token": " ear",
+          "prob": 2.93044085992733e-05
+        },
+        {
+          "token": "acing",
+          "prob": 1.8920347429229878e-05
+        },
+        {
+          "token": "ears",
+          "prob": 1.4735181139258202e-05
+        }
+      ],
+      "seconds": 25.619807500042953
+    },
+    {
+      "id": "edhj78h",
+      "text": "Had such a hard time cutting up the steak",
+      "gold": "sadness",
+      "version": "v2",
+      "p_f": 0.021921664476394653,
+      "p_ear_given_f": 0.9509854912757874,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9509854912757874
+        },
+        {
+          "token": "ru",
+          "prob": 0.04178338870406151
+        },
+        {
+          "token": "ustr",
+          "prob": 0.00499031413346529
+        },
+        {
+          "token": "ury",
+          "prob": 0.0003848116903100163
+        },
+        {
+          "token": "right",
+          "prob": 0.00021925909095443785
+        }
+      ],
+      "seconds": 35.79060810001101
+    },
+    {
+      "id": "edigf2t",
+      "text": "He was dead through the whole movie. Oh wait",
+      "gold": "surprise",
+      "version": "v2",
+      "p_f": 0.007258968893438578,
+      "p_ear_given_f": 0.9993041753768921,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9993041753768921
+        },
+        {
+          "token": "ury",
+          "prob": 0.0002958387485705316
+        },
+        {
+          "token": "right",
+          "prob": 7.962391100591049e-05
+        },
+        {
+          "token": "ears",
+          "prob": 4.5368342398433015e-05
+        },
+        {
+          "token": "rown",
+          "prob": 3.1181174563243985e-05
+        }
+      ],
+      "seconds": 32.11016089998884
+    },
+    {
+      "id": "eewppx3",
+      "text": "This is like that SNL sketch. EDIT: For anyone wondering what I’m talking about.",
+      "gold": "surprise",
+      "version": "v2",
+      "p_f": 0.008188830688595772,
+      "p_ear_given_f": 0.9112385511398315,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9112385511398315
+        },
+        {
+          "token": "amiliar",
+          "prob": 0.05825353041291237
+        },
+        {
+          "token": "asc",
+          "prob": 0.01472879946231842
+        },
+        {
+          "token": "ellow",
+          "prob": 0.005418422166258097
+        },
+        {
+          "token": "ond",
+          "prob": 0.002559481654316187
+        }
+      ],
+      "seconds": 28.186244999989867
+    },
+    {
+      "id": "ed0s890",
+      "text": "I’m afraid too. It’s the not knowing what will happen that scares me.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.9999781847000122,
+      "p_ear_given_f": 0.9999940395355225,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999940395355225
+        },
+        {
+          "token": "ears",
+          "prob": 1.9947219698224217e-06
+        },
+        {
+          "token": "right",
+          "prob": 1.3709509403270204e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 1.2098599881937844e-06
+        },
+        {
+          "token": " ear",
+          "prob": 5.043446549279906e-07
+        }
+      ],
+      "seconds": 32.47811999998521
+    },
+    {
+      "id": "edt81gk",
+      "text": "Top 10 nibbas satan's too afraid to torture.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.905829668045044,
+      "p_ear_given_f": 0.999967098236084,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.999967098236084
+        },
+        {
+          "token": "right",
+          "prob": 2.1444702724693343e-05
+        },
+        {
+          "token": "ears",
+          "prob": 3.2886516692087753e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 3.2886516692087753e-06
+        },
+        {
+          "token": " ear",
+          "prob": 1.0029821169155184e-06
+        }
+      ],
+      "seconds": 36.05763739999384
+    },
+    {
+      "id": "edcxlpz",
+      "text": "There was a horrible accident",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.003169205505400896,
+      "p_ear_given_f": 0.9999096393585205,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999096393585205
+        },
+        {
+          "token": "right",
+          "prob": 7.484506932087243e-05
+        },
+        {
+          "token": "ears",
+          "prob": 7.888611435191706e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 3.0892247195879463e-06
+        },
+        {
+          "token": " ear",
+          "prob": 1.9945534859289182e-06
+        }
+      ],
+      "seconds": 23.573775099997874
+    },
+    {
+      "id": "ee2lna8",
+      "text": "It happens so much that it really scares me tbh.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.9999409914016724,
+      "p_ear_given_f": 0.9999759197235107,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999759197235107
+        },
+        {
+          "token": "right",
+          "prob": 1.4738843674422242e-05
+        },
+        {
+          "token": "ears",
+          "prob": 3.288680773039232e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 2.9022507987974677e-06
+        },
+        {
+          "token": " ear",
+          "prob": 1.209838046634104e-06
+        }
+      ],
+      "seconds": 23.927830200002063
+    },
+    {
+      "id": "ee1u7av",
+      "text": "It’s gonna be a large group interview in a shady office. Ghost em.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.18779806792736053,
+      "p_ear_given_f": 0.9999725818634033,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999725818634033
+        },
+        {
+          "token": "right",
+          "prob": 1.147858529293444e-05
+        },
+        {
+          "token": "ears",
+          "prob": 5.422099548013648e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 3.2886696317291353e-06
+        },
+        {
+          "token": "ury",
+          "prob": 2.9022410217294237e-06
+        }
+      ],
+      "seconds": 24.18666479998501
+    },
+    {
+      "id": "eegpyf2",
+      "text": "If an AI projectile is your biggest problem you've got bigger issues, next.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.0030426443554461002,
+      "p_ear_given_f": 0.9998643398284912,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9998643398284912
+        },
+        {
+          "token": "ury",
+          "prob": 5.143788439454511e-05
+        },
+        {
+          "token": "right",
+          "prob": 2.7532716558198445e-05
+        },
+        {
+          "token": "ears",
+          "prob": 2.144249992852565e-05
+        },
+        {
+          "token": "EAR",
+          "prob": 9.515051715425216e-06
+        }
+      ],
+      "seconds": 23.757276099990122
+    },
+    {
+      "id": "edew673",
+      "text": "I would be afraid he would come back and somehow blame me for his failure.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.9999130964279175,
+      "p_ear_given_f": 0.9999921321868896,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999921321868896
+        },
+        {
+          "token": "right",
+          "prob": 2.2603117031394504e-06
+        },
+        {
+          "token": "ears",
+          "prob": 1.994718104469939e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 1.7603324522497132e-06
+        },
+        {
+          "token": " ear",
+          "prob": 8.851507118379232e-07
+        }
+      ],
+      "seconds": 23.900429899978917
+    },
+    {
+      "id": "efg7lsu",
+      "text": "i have bought this but not played. i'm scared. hold me.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.9315147399902344,
+      "p_ear_given_f": 0.9999817609786987,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9999817609786987
+        },
+        {
+          "token": "right",
+          "prob": 7.889180778875016e-06
+        },
+        {
+          "token": "ears",
+          "prob": 6.1441005527740344e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 1.7603142623556778e-06
+        },
+        {
+          "token": " ear",
+          "prob": 8.851415600474866e-07
+        }
+      ],
+      "seconds": 23.85563959996216
+    },
+    {
+      "id": "eejxmnj",
+      "text": "Matinee games always scare me, but I have confidence in this team. LGI!",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 0.5583429932594299,
+      "p_ear_given_f": 0.999984860420227,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.999984860420227
+        },
+        {
+          "token": "ears",
+          "prob": 7.889205335231964e-06
+        },
+        {
+          "token": " ear",
+          "prob": 2.260295104861143e-06
+        },
+        {
+          "token": "right",
+          "prob": 1.4593563264497789e-06
+        },
+        {
+          "token": "EAR",
+          "prob": 1.136547894020623e-06
+        }
+      ],
+      "seconds": 23.831255800032523
+    },
+    {
+      "id": "eeuhyfj",
+      "text": "Venezuela has uniquely terrible oil.",
+      "gold": "fear",
+      "version": "v3",
+      "p_f": 1.0073283192468807e-05,
+      "p_ear_given_f": 0.9995571970939636,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9995571970939636
+        },
+        {
+          "token": "ury",
+          "prob": 0.00013977971684653312
+        },
+        {
+          "token": "right",
+          "prob": 0.00010886054951697588
+        },
+        {
+          "token": "asc",
+          "prob": 7.028565596556291e-05
+        },
+        {
+          "token": "ears",
+          "prob": 4.004755464848131e-05
+        }
+      ],
+      "seconds": 23.806378000008408
+    },
+    {
+      "id": "eczhm1p",
+      "text": "You mean defy their nation's people and f*ck them over.",
+      "gold": "anger",
+      "version": "v3",
+      "p_f": 4.779623850481585e-06,
+      "p_ear_given_f": 0.49708467721939087,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.49708467721939087
+        },
+        {
+          "token": "ury",
+          "prob": 0.49708467721939087
+        },
+        {
+          "token": "urious",
+          "prob": 0.0027766923885792494
+        },
+        {
+          "token": "ist",
+          "prob": 0.0005820262595079839
+        },
+        {
+          "token": "ucking",
+          "prob": 0.0002926611923612654
+        }
+      ],
+      "seconds": 23.71555719996104
+    },
+    {
+      "id": "efh5nbl",
+      "text": "I would absolutely hate it if they used it in the games tbh",
+      "gold": "anger",
+      "version": "v3",
+      "p_f": 0.00015257159247994423,
+      "p_ear_given_f": 0.9998327493667603,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9998327493667603
+        },
+        {
+          "token": "ury",
+          "prob": 4.0058592276182026e-05
+        },
+        {
+          "token": "ears",
+          "prob": 2.5863775590551086e-05
+        },
+        {
+          "token": "right",
+          "prob": 2.282470086356625e-05
+        },
+        {
+          "token": "rown",
+          "prob": 2.0142728317296132e-05
+        }
+      ],
+      "seconds": 23.97938069998054
+    },
+    {
+      "id": "ef9aoxl",
+      "text": "That mustache looks like it smells.",
+      "gold": "disgust",
+      "version": "v3",
+      "p_f": 1.0673589940779493e-06,
+      "p_ear_given_f": 0.9951444268226624,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9951444268226624
+        },
+        {
+          "token": "right",
+          "prob": 0.00231726560741663
+        },
+        {
+          "token": "asc",
+          "prob": 0.0007067261030897498
+        },
+        {
+          "token": "aint",
+          "prob": 0.0002442380355205387
+        },
+        {
+          "token": "oul",
+          "prob": 0.00020248042710591108
+        }
+      ],
+      "seconds": 23.518642000039108
+    },
+    {
+      "id": "efgaatk",
+      "text": "This is why I stopped watching. :( The brutality was disgusting.",
+      "gold": "disgust",
+      "version": "v3",
+      "p_f": 1.1358631581970258e-06,
+      "p_ear_given_f": 0.992871105670929,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.992871105670929
+        },
+        {
+          "token": "right",
+          "prob": 0.0038117975927889347
+        },
+        {
+          "token": "asc",
+          "prob": 0.000549141492228955
+        },
+        {
+          "token": "ears",
+          "prob": 0.000259396038018167
+        },
+        {
+          "token": "aint",
+          "prob": 0.00018977820582222193
+        }
+      ],
+      "seconds": 23.84990079997806
+    },
+    {
+      "id": "eekn8hb",
+      "text": "I played that one. It was really fun(at least to me, as a kid).",
+      "gold": "joy",
+      "version": "v3",
+      "p_f": 2.11978294828441e-05,
+      "p_ear_given_f": 0.9991644620895386,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9991644620895386
+        },
+        {
+          "token": "ond",
+          "prob": 0.00017941016994882375
+        },
+        {
+          "token": "elic",
+          "prob": 9.603134822100401e-05
+        },
+        {
+          "token": "ears",
+          "prob": 9.021309961099178e-05
+        },
+        {
+          "token": "asc",
+          "prob": 7.47892918298021e-05
+        }
+      ],
+      "seconds": 23.988106100005098
+    },
+    {
+      "id": "edsvx30",
+      "text": "Different personalities, I've always been like that with friends and family.",
+      "gold": "joy",
+      "version": "v3",
+      "p_f": 7.435814040945843e-05,
+      "p_ear_given_f": 0.9997064471244812,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9997064471244812
+        },
+        {
+          "token": "amiliar",
+          "prob": 6.6037115175277e-05
+        },
+        {
+          "token": "ellow",
+          "prob": 5.827755376230925e-05
+        },
+        {
+          "token": "asc",
+          "prob": 4.26367660111282e-05
+        },
+        {
+          "token": "ears",
+          "prob": 3.762681444641203e-05
+        }
+      ],
+      "seconds": 23.80687080003554
+    },
+    {
+      "id": "edwl3i2",
+      "text": "As a former [NAME], I apologize. That’s tough",
+      "gold": "sadness",
+      "version": "v3",
+      "p_f": 1.2869061265519122e-06,
+      "p_ear_given_f": 0.9998688697814941,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9998688697814941
+        },
+        {
+          "token": "ears",
+          "prob": 3.763292988878675e-05
+        },
+        {
+          "token": "ellow",
+          "prob": 2.282552668475546e-05
+        },
+        {
+          "token": "acing",
+          "prob": 1.0128765097761061e-05
+        },
+        {
+          "token": " ear",
+          "prob": 5.093063009553589e-06
+        }
+      ],
+      "seconds": 23.852060900011566
+    },
+    {
+      "id": "edhj78h",
+      "text": "Had such a hard time cutting up the steak",
+      "gold": "sadness",
+      "version": "v3",
+      "p_f": 0.012725485488772392,
+      "p_ear_given_f": 0.6921001076698303,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.6921001076698303
+        },
+        {
+          "token": "ru",
+          "prob": 0.2885102331638336
+        },
+        {
+          "token": "ustr",
+          "prob": 0.016276633366942406
+        },
+        {
+          "token": "raz",
+          "prob": 0.0004617325612343848
+        },
+        {
+          "token": "ury",
+          "prob": 0.0004617325612343848
+        }
+      ],
+      "seconds": 23.527335799997672
+    },
+    {
+      "id": "edigf2t",
+      "text": "He was dead through the whole movie. Oh wait",
+      "gold": "surprise",
+      "version": "v3",
+      "p_f": 8.459327364107594e-05,
+      "p_ear_given_f": 0.9997549653053284,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9997549653053284
+        },
+        {
+          "token": "right",
+          "prob": 9.608810069039464e-05
+        },
+        {
+          "token": "ury",
+          "prob": 4.263883238309063e-05
+        },
+        {
+          "token": "ears",
+          "prob": 2.0141160348430276e-05
+        },
+        {
+          "token": "asc",
+          "prob": 1.4735586773895193e-05
+        }
+      ],
+      "seconds": 25.20024510001531
+    },
+    {
+      "id": "eewppx3",
+      "text": "This is like that SNL sketch. EDIT: For anyone wondering what I’m talking about.",
+      "gold": "surprise",
+      "version": "v3",
+      "p_f": 0.0028693038038909435,
+      "p_ear_given_f": 0.9993009567260742,
+      "top_after_f": [
+        {
+          "token": "ear",
+          "prob": 0.9993009567260742
+        },
+        {
+          "token": "amiliar",
+          "prob": 0.0002610759111121297
+        },
+        {
+          "token": "asc",
+          "prob": 0.0002610759111121297
+        },
+        {
+          "token": "ellow",
+          "prob": 3.533278504619375e-05
+        },
+        {
+          "token": "ame",
+          "prob": 2.2812560928286985e-05
+        }
+      ],
+      "seconds": 23.979021100036334
+    }
+  ]
+}
