@@ -23,3 +23,11 @@ def test_custom_label_order():
     for v in ("v2", "v3"):
         joined = "\n".join(m["content"] for m in build_messages(TEXT, v, labels=order))
         assert ", ".join(order) in joined
+
+
+def test_v4_is_v3_without_lowercase():
+    v3, v4 = build_messages(TEXT, "v3"), build_messages(TEXT, "v4")
+    assert [m["role"] for m in v4] == ["system", "user"]
+    assert v4[0]["content"] == v3[0]["content"].replace("in lowercase ", "")
+    assert v4[0]["content"] != v3[0]["content"]
+    assert v4[1] == v3[1]

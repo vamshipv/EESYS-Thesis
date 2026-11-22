@@ -1,15 +1,16 @@
-"""Minimal Streamlit viewer for ollama_calls_test.predict_proba (exploration only).
+"""Minimal Streamlit viewer for the prompt versions v1/v2/v3 (exploration only).
+
+Scores with experiments/prompt_comparison/backends.py, so it uses the same prompts, label-token
+rule and label mass as the prompt-comparison runs.
 
 Run from anywhere:  streamlit run "master code/user Interface/explore_app.py"
 (the theme in user Interface/.streamlit/ sits next to the script, so it loads from any folder)
 Not the thesis demo interface (that is built last, on the real pipeline).
 """
-import math
+import html
+import sys
 from dataclasses import asdict
 from pathlib import Path
-
-import inspect
-import sys
 
 import requests
 import streamlit as st
@@ -17,10 +18,17 @@ import streamlit as st
 CODE_ROOT = Path(__file__).resolve().parent.parent  # master code/
 sys.path.insert(0, str(CODE_ROOT))  # so the test scripts in master code/ import
 
-from data import load_samples  # noqa: E402
-from ollama_calls_test import LABELS, predict_proba  # noqa: E402
+from data import EMOTIONS as LABELS, load_samples  # noqa: E402
+from experiments.prompt_comparison.backends import score_ollama  # noqa: E402
+from prompts import PROMPTS_DIR, build_messages  # noqa: E402
 
-MODEL = inspect.signature(predict_proba).parameters["model"].default
+MODEL = "llama3.1"  # Ollama model name
+VERSIONS = sorted(p.stem for p in PROMPTS_DIR.glob("v*.txt"))
+VERSION_NOTES = {
+    "v1": "original prompt",
+    "v2": "v1 + answer in lowercase",
+    "v3": "v2 wording as a system message, text only in the user message",
+}
 
 # Material 3 Expressive tokens: sage-green primary, sand tertiary, terracotta for errors.
 CSS = """
@@ -70,6 +78,12 @@ h1 { font-weight: 800; letter-spacing: -0.02em; color: var(--on-surface); }
 .row .fill.top { background: var(--primary); }
 .row .pct { width: 3.8rem; text-align: right; font-variant-numeric: tabular-nums; }
 .tok { font-family: ui-monospace, monospace; }
+.msg { font-family: ui-monospace, monospace; font-size: 0.85rem; white-space: pre-wrap;
+  background: var(--surface-container-high); border-radius: 14px; padding: 0.6rem 0.8rem; margin: 0.3rem 0; }
+.role { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--on-surface-variant); }
+.cmp { width: 100%; border-collapse: collapse; }
+.cmp th, .cmp td { text-align: left; padding: 0.35rem 0.4rem; border-bottom: 1px solid var(--outline); }
+.cmp th { font-size: 0.85rem; color: var(--on-surface-variant); }
 .section { font-weight: 700; margin-bottom: 0.4rem; color: var(--on-surface); }
 .cm { width: 100%; border-collapse: separate; border-spacing: 4px; }
 .cm th { font-weight: 600; color: var(--on-surface-variant); font-size: 0.85rem; text-align: center; }
@@ -87,16 +101,21 @@ def load_dev_set() -> list[dict]:
 
 
 @st.cache_data(show_spinner=False)
-def cached_predict(text: str, model: str = MODEL) -> tuple[dict, list]:
-    """Cache Ollama calls per (text, model) so re-renders don't re-query the model."""
-    return predict_proba(text, model=model)
+def cached_predict(text: str, version: str, model: str = MODEL) -> dict:
+    """Ollama score per (text, prompt version, model); cached so re-renders don't re-query."""
+    return score_ollama(build_messages(text, version), model=model)
 
 
 @st.cache_data(show_spinner=False)
-def cached_predict_hf(text: str) -> dict:
+def cached_predict_hf(text: str, version: str) -> dict:
     """HF transformers backend (bf16, offloaded). Imported lazily so torch only loads when used."""
-    import llama_hf_test
-    return llama_hf_test.predict_details(text)
+    from experiments.prompt_comparison.backends import score_hf
+    return score_hf(build_messages(text, version))
+
+
+def predict(text: str, version: str, use_hf: bool) -> dict:
+    """Score one text with one prompt version on the chosen backend."""
+    return cached_predict_hf(text, version) if use_hf else cached_predict(text, version)
 
 
 def load_hf_model() -> None:
@@ -121,12 +140,39 @@ def bars_html(probs: dict) -> str:
 
 def tokens_html(top: list) -> str:
     rows = "".join(
-        f'<div class="row"><span class="name tok">{t["token"]!r}</span>'
-        f'<span style="flex:1;color:var(--on-surface-variant)">logprob {t["logprob"]:.2f}</span>'
-        f'<span class="pct">{math.exp(t["logprob"]):.1%}</span></div>'
+        f'<div class="row"><span class="name tok">{html.escape(repr(t["token"]))}</span>'
+        f'<span style="flex:1"></span><span class="pct">{t["prob"]:.1%}</span></div>'
         for t in top
     )
     return '<div class="card"><div class="section">Top first-token guesses</div>' + rows + "</div>"
+
+
+def prompt_html(text: str, version: str) -> str:
+    """The chat messages actually sent for this prompt version."""
+    msgs = "".join(
+        f'<div class="role">{m["role"]}</div><div class="msg">{html.escape(m["content"])}</div>'
+        for m in build_messages(text, version)
+    )
+    return f'<div class="card"><div class="section">Prompt sent · {version}</div>{msgs}</div>'
+
+
+def compare_html(results: dict[str, dict], true_label: str | None) -> str:
+    """One row per prompt version: prediction, confidence, label mass, top token."""
+    head = ("<tr><th>prompt</th><th>prediction</th><th>confidence</th>"
+            "<th>label mass</th><th>top token</th></tr>")
+    rows = []
+    for v, r in results.items():
+        chip = ""
+        if true_label:
+            ok = r["pred"] == true_label
+            chip = f' <span class="chip {"ok" if ok else "bad"}">{"right" if ok else "wrong"}</span>'
+        top = r["top_tokens"][0]
+        rows.append(f'<tr><td><b>{v}</b> <span style="color:var(--on-surface-variant)">'
+                    f'{VERSION_NOTES.get(v, "")}</span></td><td><b>{r["pred"]}</b>{chip}</td>'
+                    f'<td>{r["probs"][r["pred"]]:.0%}</td><td>{r["label_mass"]:.0%}</td>'
+                    f'<td class="tok">{html.escape(repr(top["token"]))} {top["prob"]:.0%}</td></tr>')
+    return ('<div class="card"><div class="section">All prompt versions</div>'
+            f'<table class="cmp">{head}{"".join(rows)}</table></div>')
 
 
 def torch_oom_error() -> type:
@@ -136,8 +182,8 @@ def torch_oom_error() -> type:
     return torch.cuda.OutOfMemoryError if torch else type("NoTorch", (Exception,), {})
 
 
-def single_tab(rows: list[dict]) -> None:
-    """Tab 1: classify one sentence and show probabilities + top tokens."""
+def single_tab(rows: list[dict], version: str) -> None:
+    """Tab 1: classify one sentence with the chosen prompt; compare with the other versions."""
     backend = st.radio(
         "Backend",
         ["Ollama · 4-bit", "Transformers · bf16 (slow)"],
@@ -153,22 +199,26 @@ def single_tab(rows: list[dict]) -> None:
         text = st.text_area("Text", value=picked["text"] if picked else "", height=100)
         submitted = st.form_submit_button("Classify")
 
-    if not submitted or not text.strip():
+    if submitted:  # keep the last classified text, so changing prompt/backend re-shows it
+        st.session_state["shown_text"] = text.strip()
+    text = st.session_state.get("shown_text", "")
+    if not text:
         return
 
-    details = None
     try:
         if use_hf:
             with st.spinner("Loading Llama 3.1 8B in bf16 (first time takes minutes)…"):
                 load_hf_model()
-            with st.spinner("Running a forward pass…"):
-                details = cached_predict_hf(text.strip())
-            probs, top = details["probs"], details["top"]
-        else:
-            with st.spinner("Asking the model…"):
-                probs, top = cached_predict(text.strip())
+        with st.spinner("Asking the model…"):
+            details = predict(text.strip(), version, use_hf)
     except ImportError as e:
         st.error(f"Missing package for the transformers backend: {e}")
+        return
+    except requests.ConnectionError:  # requests errors before OSError: they subclass it
+        st.error("Can't reach Ollama at localhost:11434. Is `ollama serve` running?")
+        return
+    except requests.RequestException as e:
+        st.error(f"Ollama request failed: {e}")
         return
     except OSError as e:  # gated repo, no token, missing files
         st.error(f"Couldn't load the model from Hugging Face: {e}")
@@ -176,20 +226,17 @@ def single_tab(rows: list[dict]) -> None:
     except torch_oom_error() as e:
         st.error(f"Out of memory. Lower LLAMA_GPU_MEM / LLAMA_CPU_MEM and restart. ({e})")
         return
-    except requests.ConnectionError:
-        st.error("Can't reach Ollama at localhost:11434. Is `ollama serve` running?")
-        return
     except (KeyError, IndexError) as e:
         st.error(f"Unexpected Ollama response (no logprobs?): {e!r}")
         return
 
-    pred = max(probs, key=probs.get)
-    chips = f'<span class="chip info">{probs[pred]:.0%} confident</span>'
-    if details:
-        chips += (
-            f'<span class="chip info">{details["seconds"]:.1f}s forward pass</span>'
-            f'<span class="chip info">label mass {details["label_mass"]:.0%}</span>'
-        )
+    probs, top, pred = details["probs"], details["top_tokens"], details["pred"]
+    chips = (
+        f'<span class="chip info">{version}</span>'
+        f'<span class="chip info">{probs[pred]:.0%} confident</span>'
+        f'<span class="chip info">{details["seconds"]:.1f}s</span>'
+        f'<span class="chip info">label mass {details["label_mass"]:.0%}</span>'
+    )
     if picked and picked["text"] == text.strip():
         ok = pred == picked["label"]
         chips += (
@@ -201,20 +248,33 @@ def single_tab(rows: list[dict]) -> None:
         f'<div class="label">{pred}</div><div style="margin-top:0.7rem">{chips}</div></div>',
         unsafe_allow_html=True,
     )
-    if sum(probs.values()) == 0:
-        st.warning("No label tokens in the top-20 logprobs, so there is no real prediction.")
+    if details["label_mass"] == 0:
+        st.warning("No label tokens among the scored first tokens, so there is no real prediction.")
     st.markdown(bars_html(probs), unsafe_allow_html=True)
     st.markdown(tokens_html(top), unsafe_allow_html=True)
+    st.markdown(prompt_html(text.strip(), version), unsafe_allow_html=True)
+
+    others = [v for v in VERSIONS if v != version]
+    if use_hf and not st.session_state.get("hf_compare"):
+        st.caption(f"Each bf16 call takes ~25 s, so the other prompts ({', '.join(others)}) "
+                   "run only when you tick the box below.")
+    if use_hf and not st.checkbox(f"Also run {', '.join(others)}", key="hf_compare"):
+        return
+    with st.spinner("Scoring the other prompt versions…"):
+        results = {v: details if v == version else predict(text.strip(), v, use_hf) for v in VERSIONS}
+    true_label = picked["label"] if picked and picked["text"] == text.strip() else None
+    st.markdown(compare_html(results, true_label), unsafe_allow_html=True)
 
 
-def run_dev_set(rows: list[dict]) -> list[dict]:
+def run_dev_set(rows: list[dict], version: str) -> list[dict]:
     """Predict every dev-set text; returns rows with `pred` added (None if no label token)."""
     results = []
     bar = st.progress(0.0, text="Classifying dev set…")
     for i, row in enumerate(rows, 1):
-        probs, _ = cached_predict(row["text"].strip())
-        pred = max(probs, key=probs.get) if sum(probs.values()) > 0 else None
-        results.append({**row, "model": MODEL, "pred": pred, "conf": probs[pred] if pred else 0.0})
+        r = cached_predict(row["text"].strip(), version)
+        pred = r["pred"] if r["label_mass"] > 0 else None
+        results.append({**row, "model": MODEL, "version": version, "pred": pred,
+                        "conf": r["probs"][pred] if pred else 0.0})
         bar.progress(i / len(rows), text=f"Classifying dev set… {i}/{len(rows)}")
     bar.empty()
     return results
@@ -258,12 +318,14 @@ def matrix_html(results: list[dict]) -> str:
     )
 
 
-def matrix_tab(rows: list[dict]) -> None:
-    """Tab 2: run the whole dev set and show a confusion matrix."""
-    st.caption(f"Runs all {len(rows)} dev-set texts. Cached calls are reused, so reruns are fast.")
-    if st.button("Run confusion matrix"):
+def matrix_tab(rows: list[dict], version: str) -> None:
+    """Tab 2: run the whole dev set with the chosen prompt (Ollama) and show a confusion matrix."""
+    st.caption(f"Runs all {len(rows)} dev-set texts on Ollama with prompt {version}. "
+               "Cached calls are reused, so reruns are fast.")
+    key = f"cm_results_{version}"
+    if st.button(f"Run confusion matrix ({version})"):
         try:
-            st.session_state["cm_results"] = run_dev_set(rows)
+            st.session_state[key] = run_dev_set(rows, version)
         except requests.ConnectionError:
             st.error("Can't reach Ollama at localhost:11434. Is `ollama serve` running?")
             return
@@ -271,7 +333,7 @@ def matrix_tab(rows: list[dict]) -> None:
             st.error(f"Unexpected Ollama response (no logprobs?): {e!r}")
             return
 
-    results = st.session_state.get("cm_results")
+    results = st.session_state.get(key)
     if results and results[0].get("model") != MODEL:
         results = None  # stale results from another model
     if not results:
@@ -308,14 +370,16 @@ def main() -> None:
             "won't work. Stop this server and start it with `user Interface/run_app.ps1`."
         )
     st.title("Emotion check")
-    st.caption("Exploration viewer · Llama 3.1 8B via Ollama · first-token logprobs")
+    st.caption("Exploration viewer · Llama 3.1 8B · first-token probabilities")
 
+    version = st.selectbox("Prompt version", VERSIONS, index=len(VERSIONS) - 1,
+                           format_func=lambda v: f"{v} · {VERSION_NOTES.get(v, '')}")
     rows = load_dev_set()
     tab1, tab2 = st.tabs(["Single text", "Confusion matrix"])
     with tab1:
-        single_tab(rows)
+        single_tab(rows, version)
     with tab2:
-        matrix_tab(rows)
+        matrix_tab(rows, version)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ from data.schema import EMOTIONS
 
 OLLAMA_URL = "http://localhost:11434"
 OLLAMA_TOP_K = 20
+OLLAMA_RETRIES = 3  # attempts per call on HTTP 5xx
 MIN_TOKEN_CHARS = 3
 
 
@@ -78,13 +79,17 @@ OLLAMA_OPTIONS = {"temperature": 0, "num_predict": 3}
 
 def score_ollama(messages: list[dict], model: str = "llama3.1") -> dict:
     """One /api/chat call; scores labels from the first generated token's top-20 logprobs."""
-    t0 = time.perf_counter()
-    r = requests.post(f"{OLLAMA_URL}/api/chat", json={
-        "model": model, "messages": messages, "stream": False, "think": False,
-        "logprobs": True, "top_logprobs": OLLAMA_TOP_K, "options": OLLAMA_OPTIONS,
-    }, timeout=300)
+    payload = {"model": model, "messages": messages, "stream": False, "think": False,
+               "logprobs": True, "top_logprobs": OLLAMA_TOP_K, "options": OLLAMA_OPTIONS}
+    for attempt in range(OLLAMA_RETRIES):
+        t0 = time.perf_counter()
+        r = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=300)
+        seconds = time.perf_counter() - t0
+        # Ollama can return 500 on the first request while it is still loading the model.
+        if r.status_code < 500 or attempt == OLLAMA_RETRIES - 1:
+            break
+        time.sleep(5)
     r.raise_for_status()
-    seconds = time.perf_counter() - t0
     first = r.json()["logprobs"][0]["top_logprobs"]
     pairs = sorted(((t["token"], math.exp(t["logprob"])) for t in first), key=lambda x: -x[1])
     return summarise(pairs, seconds)

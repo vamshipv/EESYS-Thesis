@@ -6,6 +6,7 @@ templates without it are user-only.
 v1 (2026-11-19): original prompt from ollama_calls_test.py.
 v2 (2026-11-21): asks for lowercase, so the answer's first token is less split across casings.
 v3 (2026-11-21): v2 wording as a system message (instruction + labels); user message is only the text.
+v4 (2026-11-22): v3 without "in lowercase" (capitalised answers, system message); post-hoc 2x2 check.
 """
 from pathlib import Path
 
