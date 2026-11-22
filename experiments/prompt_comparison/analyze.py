@@ -1,15 +1,22 @@
-"""Markdown report for one prompt-comparison results file (written next to it).
+"""Markdown report for one or more prompt-comparison results files.
 
-python -m experiments.prompt_comparison.analyze experiments/prompt_comparison/results/<name>.jsonl
+python -m experiments.prompt_comparison.analyze <file1.jsonl> [<file2.jsonl> ...] [--out NAME]
+One file: report next to it (<name>.report.md). Several files: rows are merged into one report,
+results/<date>_combined_<backend>.report.md (or results/<NAME>.report.md with --out). Files are
+only merged if backend, model, sample, label-token rule and decoding match.
 """
+import argparse
 import json
 import math
-import sys
 from collections import Counter, defaultdict
+from datetime import date
 from itertools import combinations
 from pathlib import Path
 
 from data.schema import EMOTIONS
+
+LOW_MASS = 0.9  # label-mass selection criterion (02_Decisions 2026-11-21)
+MERGE_KEYS = ("backend", "model", "sample", "label_token_rule", "decoding")
 
 
 def f1_per_class(gold: list[str], pred: list[str]) -> dict[str, float]:
@@ -55,19 +62,62 @@ def mark(r: dict) -> str:
     return r["pred"] + (" ✓" if r["correct"] else "")
 
 
+def pred_counts(rs: list[dict]) -> Counter:
+    return Counter(r["pred"] for r in rs)
+
+
+def paired(ra: list[dict], rb: list[dict]) -> list[tuple[dict, dict]]:
+    by_b = {r["id"]: r for r in rb}
+    return [(x, by_b[x["id"]]) for x in ra if x["id"] in by_b]
+
+
+# --- stats used by the tables and the decision check -------------------------------------
+
+def flip_stats(ra: list[dict], rb: list[dict]) -> dict:
+    """Prediction flips A -> B: broke = A right & B wrong, fixed = A wrong & B right."""
+    pairs = paired(ra, rb)
+    wrong = [(x, y) for x, y in pairs if not x["correct"] and not y["correct"]]
+    s = {"n": len(pairs),
+         "both": sum(x["correct"] and y["correct"] for x, y in pairs),
+         "broke": sum(x["correct"] and not y["correct"] for x, y in pairs),
+         "fixed": sum(not x["correct"] and y["correct"] for x, y in pairs),
+         "same_wrong": sum(x["pred"] == y["pred"] for x, y in wrong),
+         "diff_wrong": sum(x["pred"] != y["pred"] for x, y in wrong),
+         "agree": sum(x["pred"] == y["pred"] for x, y in pairs) / len(pairs)}
+    s["p"] = mcnemar_exact(s["broke"], s["fixed"])
+    return s
+
+
+def mass_stats(ra: list[dict], rb: list[dict]) -> dict:
+    """Paired label mass A vs B: texts below LOW_MASS for A only / B only / both / neither."""
+    pairs = paired(ra, rb)
+    lo = [(x["label_mass"] < LOW_MASS, y["label_mass"] < LOW_MASS) for x, y in pairs]
+    s = {"n": len(pairs),
+         "a_only": sum(a and not b for a, b in lo), "b_only": sum(b and not a for a, b in lo),
+         "both": sum(a and b for a, b in lo), "neither": sum(not a and not b for a, b in lo),
+         "b_higher": sum(y["label_mass"] > x["label_mass"] for x, y in pairs)}
+    s["p"] = mcnemar_exact(s["a_only"], s["b_only"])
+    return s
+
+
+# --- report sections ----------------------------------------------------------------------
+
 def headline(groups: dict[tuple, list[dict]]) -> list[str]:
     rows = []
     for (v, o), rs in groups.items():
         mf1, per = macro_f1([r["gold"] for r in rs], [r["pred"] for r in rs])
         worst = min(per, key=per.get)
         mass = [r["label_mass"] for r in rs]
+        counts = pred_counts(rs)
         rows.append([v, o, len(rs), pct(sum(r["correct"] for r in rs) / len(rs)), f"{mf1:.3f}",
                      *(f"{per[e]:.2f}" for e in EMOTIONS), f"{worst} ({per[worst]:.2f})",
-                     f"{sum(mass) / len(mass):.3f}", pct(sum(m < 0.9 for m in mass) / len(mass)),
+                     f"{sum(mass) / len(mass):.3f}", pct(sum(m < LOW_MASS for m in mass) / len(mass)),
                      pct(sum(m < 0.5 for m in mass) / len(mass)),
+                     *(counts[e] for e in EMOTIONS),
                      f"{sum(r['seconds'] for r in rs) / len(rs):.2f}"])
     return table(["version", "order", "n", "acc", "macro-F1", *(f"F1 {e[:4]}" for e in EMOTIONS),
-                  "worst class", "mean mass", "mass<0.9", "mass<0.5", "mean s"], rows)
+                  "worst class", "mean mass", "mass<0.9", "mass<0.5",
+                  *(f"#pred {e[:4]}" for e in EMOTIONS), "mean s"], rows)
 
 
 def confusion(rs: list[dict]) -> list[str]:
@@ -84,20 +134,19 @@ def confusion(rs: list[dict]) -> list[str]:
 
 
 def flips(a: str, b: str, ra: list[dict], rb: list[dict]) -> list[str]:
-    by_b = {r["id"]: r for r in rb}
-    pairs = [(x, by_b[x["id"]]) for x in ra if x["id"] in by_b]
-    both = sum(x["correct"] and y["correct"] for x, y in pairs)
-    broke = sum(x["correct"] and not y["correct"] for x, y in pairs)
-    fixed = sum(not x["correct"] and y["correct"] for x, y in pairs)
-    wrong = [(x, y) for x, y in pairs if not x["correct"] and not y["correct"]]
-    same_wrong = sum(x["pred"] == y["pred"] for x, y in wrong)
-    agree = sum(x["pred"] == y["pred"] for x, y in pairs) / len(pairs)
-    lines = table(["both right", f"broke ({a} right, {b} wrong)", f"fixed ({a} wrong, {b} right)",
-                   "both wrong, same label", "both wrong, different", "pred agreement",
-                   "McNemar p (exact)"],
-                  [[both, broke, fixed, same_wrong, len(wrong) - same_wrong, pct(agree),
-                    f"{mcnemar_exact(broke, fixed):.3f}"]])
-    flipped = [(x, y) for x, y in pairs if x["pred"] != y["pred"]]
+    s = flip_stats(ra, rb)
+    lines = ["Predictions:", ""] + table(
+        ["both right", f"broke ({a} right, {b} wrong)", f"fixed ({a} wrong, {b} right)",
+         "both wrong, same label", "both wrong, different", "pred agreement", "McNemar p (exact)"],
+        [[s["both"], s["broke"], s["fixed"], s["same_wrong"], s["diff_wrong"], pct(s["agree"]),
+          f"{s['p']:.3f}"]])
+    m = mass_stats(ra, rb)
+    lines += ["", f"Label mass (< {LOW_MASS}):", ""] + table(
+        [f"low {a} only", f"low {b} only", "low both", "low neither", "McNemar p (exact)",
+         f"{b} mass > {a} mass"],
+        [[m["a_only"], m["b_only"], m["both"], m["neither"], f"{m['p']:.3f}",
+          f"{m['b_higher']}/{m['n']}"]])
+    flipped = [(x, y) for x, y in paired(ra, rb) if x["pred"] != y["pred"]]
     if flipped:
         lines += ["", f"Texts where the prediction changed ({len(flipped)}):", ""] + table(
             ["id", "text", "gold", f"pred {a}", f"pred {b}"],
@@ -137,12 +186,70 @@ def order_checks(by_order: dict[str, list[dict]]) -> list[str]:
     return lines
 
 
-def report(path: Path) -> str:
-    """Full markdown report for one results JSONL."""
+# Fixed before the v4 run (02_Decisions 2026-11-22, "Post-hoc check: prompt v4"). Don't change.
+V4_MAX_LOW_MASS = 4
+V4_MAX_ANGER = 37
+V4_MAX_ANY_LABEL = 41
+ALPHA = 0.05
+
+
+def v4_decision_check(v3: list[dict], v4: list[dict]) -> list[str]:
+    """PASS/FAIL per condition of the fixed v4 rule; v4 replaces v3 only if all pass."""
+    m, f, counts = mass_stats(v3, v4), flip_stats(v3, v4), pred_counts(v4)
+    n_low = sum(r["label_mass"] < LOW_MASS for r in v4)
+    top_label, top_n = counts.most_common(1)[0]
+    c1 = n_low <= V4_MAX_LOW_MASS and not (m["p"] < ALPHA and m["b_only"] > m["a_only"])
+    c2 = counts["anger"] <= V4_MAX_ANGER and top_n <= V4_MAX_ANY_LABEL
+    c3 = not (f["p"] < ALPHA and f["broke"] > f["fixed"])
+    res = lambda ok: "**PASS**" if ok else "**FAIL**"
+    return ["## v4 decision check (rule fixed in 02_Decisions, 2026-11-22)", "",
+            f"1. Label mass not worse: {res(c1)}. v4 texts with mass < {LOW_MASS}: {n_low} "
+            f"(limit {V4_MAX_LOW_MASS}); paired low v3 only / v4 only: {m['a_only']} / {m['b_only']}, "
+            f"McNemar p = {m['p']:.3f}.",
+            f"2. Anger sink reduced: {res(c2)}. v4 anger predicted {counts['anger']} "
+            f"(limit {V4_MAX_ANGER}); most-predicted label {top_label} {top_n} (limit {V4_MAX_ANY_LABEL}).",
+            f"3. Macro-F1 not significantly worse: {res(c3)}. v4 broke / fixed vs v3: "
+            f"{f['broke']} / {f['fixed']}, McNemar p = {f['p']:.3f}.",
+            "", f"**Result: {'v4 replaces v3' if c1 and c2 and c3 else 'v3 stays'}.**", ""]
+
+
+# --- loading and merging ------------------------------------------------------------------
+
+def load(path: Path) -> tuple[list[dict], dict]:
+    """Rows and meta (empty dict if there is no meta file) of one results JSONL."""
     with open(path, encoding="utf-8") as f:
         rows = [json.loads(l) for l in f if l.strip()]
     meta_path = path.with_suffix(".meta.json")
     meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
+    return rows, meta
+
+
+def merge(sources: list[tuple[Path, list[dict], dict]]) -> list[dict]:
+    """Concatenate rows of several files; raise ValueError if their setups differ or a
+    (id, version, order) appears twice."""
+    first_path, _, first_meta = sources[0]
+    for path, _, meta in sources[1:]:
+        for k in MERGE_KEYS:
+            if meta.get(k) != first_meta.get(k):
+                raise ValueError(f"Can't merge: '{k}' differs between {first_path.name} "
+                                 f"({first_meta.get(k)}) and {path.name} ({meta.get(k)}).")
+    seen: dict[tuple, str] = {}
+    rows = []
+    for path, rs, _ in sources:
+        for r in rs:
+            key = (r["id"], r["version"], r["order_id"])
+            if key in seen:
+                raise ValueError(f"Can't merge: {key} is in both {seen[key]} and {path.name}.")
+            seen[key] = path.name
+            rows.append(r)
+    return rows
+
+
+def report(sources: list[tuple[Path, list[dict], dict]], title: str,
+           extra: list[str] | None = None) -> str:
+    """Full markdown report for the merged rows of one or more results files."""
+    rows = merge(sources)
+    meta = sources[0][2]
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for r in rows:
         groups[r["version"], r["order_id"]].append(r)
@@ -151,15 +258,21 @@ def report(path: Path) -> str:
     orders = sorted({o for _, o in groups})
     ollama = rows[0]["backend"] == "ollama"
 
-    out = [f"# Prompt comparison report: {path.stem}", "",
+    out = [f"# Prompt comparison report: {title}", "",
            f"- Backend: {rows[0]['backend']}, model: {rows[0]['model']}",
            f"- Sample: {meta.get('sample', '?')}"
            + (f" (limit {meta['limit']})" if meta.get("limit") else ""),
            f"- Rows: {len(rows)}; versions: {', '.join(versions)}; orders: {', '.join(orders)}",
-           f"- Prompt hashes: {meta.get('prompt_hashes', {})}; git: {meta.get('git_commit', '?')}",
-           "- label_mass = probability on label tokens before renormalising"
-           + (" (Ollama: top-20 logprobs only, so a lower bound)." if ollama else "."),
-           "", "## Headline", ""] + headline(groups)
+           "- Sources:"]
+    for path, rs, m in sources:
+        out.append(f"  - `{path.name}` ({len(rs)} rows): git {m.get('git_commit', '?')}, "
+                   f"prompt hashes {m.get('prompt_hashes', {})}")
+    out += ["- label_mass = probability on label tokens before renormalising"
+            + (" (Ollama: top-20 logprobs only, so a lower bound)." if ollama else ".")]
+    out += [""] + (extra or [])
+    if ("v3", "O1") in groups and ("v4", "O1") in groups:
+        out += v4_decision_check(groups["v3", "O1"], groups["v4", "O1"])
+    out += ["## Headline", ""] + headline(groups)
 
     out += ["", "## Confusion matrices"]
     for (v, o), rs in groups.items():
@@ -182,9 +295,23 @@ def report(path: Path) -> str:
 
 
 def main() -> None:
-    path = Path(sys.argv[1])
-    out = path.with_name(path.stem + ".report.md")
-    out.write_text(report(path), encoding="utf-8")
+    ap = argparse.ArgumentParser(description="Prompt comparison report")
+    ap.add_argument("files", nargs="+", type=Path)
+    ap.add_argument("--out", default=None, help="report name (without .report.md)")
+    args = ap.parse_args()
+    sources = [(p, *load(p)) for p in args.files]
+    if len(sources) == 1 and not args.out:
+        out, title = args.files[0].with_name(args.files[0].stem + ".report.md"), args.files[0].stem
+    else:
+        name = args.out or f"{date.today().isoformat()}_combined_{sources[0][2].get('backend', 'x')}"
+        out, title = args.files[0].parent / f"{name}.report.md", name
+    if out.exists() and len(sources) > 1:
+        raise FileExistsError(f"{out} exists; pick another --out.")
+    try:
+        text = report(sources, title)
+    except ValueError as e:
+        raise SystemExit(str(e))
+    out.write_text(text, encoding="utf-8")
     print(f"Wrote {out}")
 
 

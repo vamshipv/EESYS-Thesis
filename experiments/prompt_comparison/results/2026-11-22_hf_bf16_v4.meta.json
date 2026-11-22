@@ -1,0 +1,78 @@
+{
+  "sessions": [
+    {
+      "start": "2026-11-22T10:09:59+00:00",
+      "args": {
+        "backend": "hf",
+        "sample": "dev_large",
+        "versions": [
+          "v4"
+        ],
+        "orders": [
+          "O1"
+        ],
+        "limit": 3,
+        "tag": "bf16_v4",
+        "model": "llama3.1"
+      },
+      "end": "2026-11-22T10:10:48+00:00"
+    },
+    {
+      "start": "2026-11-22T10:11:10+00:00",
+      "args": {
+        "backend": "hf",
+        "sample": "dev_large",
+        "versions": [
+          "v4"
+        ],
+        "orders": [
+          "O1"
+        ],
+        "limit": null,
+        "tag": "bf16_v4",
+        "model": "llama3.1"
+      },
+      "end": "2026-11-22T11:11:12+00:00"
+    }
+  ],
+  "sample": "dev_large",
+  "limit": null,
+  "backend": "hf",
+  "versions": [
+    "v4"
+  ],
+  "orders": [
+    "O1"
+  ],
+  "prompt_hashes": {
+    "v4": "4966365089d3"
+  },
+  "git_commit": "720b9a7-dirty",
+  "model": {
+    "id": "unsloth/Llama-3.1-8B-Instruct",
+    "revision": "4699cc75b550f9c6f3173fb80f4703b62d946aa5",
+    "dtype": "bfloat16",
+    "max_memory": {
+      "gpu": "6.5GiB",
+      "cpu": "6GiB"
+    }
+  },
+  "decoding": "single forward pass, full next-token distribution (no sampling)",
+  "label_token_rule": {
+    "min_prefix_chars": 3,
+    "exact_first_tokens": {
+      "anger": "anger",
+      "Ang": "anger",
+      "dis": "disgust",
+      "Dis": "disgust",
+      "f": "fear",
+      "Fear": "fear",
+      "joy": "joy",
+      "Joy": "joy",
+      "sad": "sadness",
+      "Sad": "sadness",
+      "sur": "surprise",
+      "Sur": "surprise"
+    }
+  }
+}
