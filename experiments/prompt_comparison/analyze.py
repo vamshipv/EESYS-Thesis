@@ -1,9 +1,11 @@
 """Markdown report for one or more prompt-comparison results files.
 
 python -m experiments.prompt_comparison.analyze <file1.jsonl> [<file2.jsonl> ...] [--out NAME]
+    [--versions v3 ...]
 One file: report next to it (<name>.report.md). Several files: rows are merged into one report,
 results/<date>_combined_<backend>.report.md (or results/<NAME>.report.md with --out). Files are
-only merged if backend, model, sample, label-token rule and decoding match.
+only merged if backend, model, sample, label-token rule and decoding match. --versions keeps
+only rows of those prompt versions (e.g. v3 O1 rows from the v1-v3 file + the O2-O6 orders file).
 """
 import argparse
 import json
@@ -154,21 +156,28 @@ def flips(a: str, b: str, ra: list[dict], rb: list[dict]) -> list[str]:
     return lines
 
 
-def order_checks(by_order: dict[str, list[dict]]) -> list[str]:
+def order_stats(by_order: dict[str, list[dict]]) -> tuple[dict, float, dict, dict]:
+    """Per-order macro-F1 scores, macro-F1 spread, texts seen under all orders, and the
+    subset of those whose prediction changes between orders."""
     scores = {o: macro_f1([r["gold"] for r in rs], [r["pred"] for r in rs])
               for o, rs in by_order.items()}
     spread = max(s[0] for s in scores.values()) - min(s[0] for s in scores.values())
-    lines = [f"Macro-F1 spread across orders (max - min): **{spread:.3f}**", ""]
-    lines += table(["order", "labels order", "macro-F1", *(f"F1 {e[:4]}" for e in EMOTIONS)],
-                   [[o, ", ".join(by_order[o][0]["labels_order"]), f"{s[0]:.3f}",
-                     *(f"{s[1][e]:.2f}" for e in EMOTIONS)] for o, s in scores.items()])
-
     per_text = defaultdict(dict)
     for o, rs in by_order.items():
         for r in rs:
             per_text[r["id"]][o] = r
     full = {i: p for i, p in per_text.items() if len(p) == len(by_order)}
     bad = {i: p for i, p in full.items() if len({r["pred"] for r in p.values()}) > 1}
+    return scores, spread, full, bad
+
+
+def order_checks(by_order: dict[str, list[dict]]) -> list[str]:
+    scores, spread, full, bad = order_stats(by_order)
+    lines = [f"Macro-F1 spread across orders (max - min): **{spread:.3f}**", ""]
+    lines += table(["order", "labels order", "macro-F1", *(f"F1 {e[:4]}" for e in EMOTIONS)],
+                   [[o, ", ".join(by_order[o][0]["labels_order"]), f"{s[0]:.3f}",
+                     *(f"{s[1][e]:.2f}" for e in EMOTIONS)] for o, s in scores.items()])
+
     n_ok = len(full) - len(bad)
     lines += ["", f"Per-text consistency (same pred under all {len(by_order)} orders): "
               f"**{pct(n_ok / len(full)) if full else 'n/a'}** ({n_ok}/{len(full)})", ""]
@@ -211,6 +220,28 @@ def v4_decision_check(v3: list[dict], v4: list[dict]) -> list[str]:
             f"3. Macro-F1 not significantly worse: {res(c3)}. v4 broke / fixed vs v3: "
             f"{f['broke']} / {f['fixed']}, McNemar p = {f['p']:.3f}.",
             "", f"**Result: {'v4 replaces v3' if c1 and c2 and c3 else 'v3 stays'}.**", ""]
+
+
+# Fixed before the order report was generated (02_Decisions 2026-11-23). Don't change.
+ORDER_MAX_F1_SPREAD = 0.03
+ORDER_MIN_CONSISTENCY = 0.85
+ALL_ORDERS = [f"O{k + 1}" for k in range(len(EMOTIONS))]
+
+
+def order_decision_check(by_order: dict[str, list[dict]]) -> list[str]:
+    """PASS/FAIL of the fixed label-order rule: order is negligible if both conditions hold."""
+    _, spread, full, bad = order_stats(by_order)
+    consistency = (len(full) - len(bad)) / len(full)
+    c1, c2 = spread <= ORDER_MAX_F1_SPREAD, consistency >= ORDER_MIN_CONSISTENCY
+    res = lambda ok: "**PASS**" if ok else "**FAIL**"
+    verdict = ("label order negligible" if c1 and c2 else
+               "label order NOT negligible: report as limitation, flag inconsistent texts")
+    return ["## Label-order decision check (rule fixed in 02_Decisions, 2026-11-23)", "",
+            f"1. Macro-F1 spread across {len(by_order)} orders: {res(c1)}. {spread:.3f} "
+            f"(limit {ORDER_MAX_F1_SPREAD:.3f}).",
+            f"2. Per-text consistency: {res(c2)}. {pct(consistency)} "
+            f"({len(full) - len(bad)}/{len(full)}, limit {pct(ORDER_MIN_CONSISTENCY)}).",
+            "", f"**Result: {verdict}. Either way O1 is kept, prompt stays v3.**", ""]
 
 
 # --- loading and merging ------------------------------------------------------------------
@@ -265,13 +296,15 @@ def report(sources: list[tuple[Path, list[dict], dict]], title: str,
            f"- Rows: {len(rows)}; versions: {', '.join(versions)}; orders: {', '.join(orders)}",
            "- Sources:"]
     for path, rs, m in sources:
-        out.append(f"  - `{path.name}` ({len(rs)} rows): git {m.get('git_commit', '?')}, "
+        out.append(f"  - `{path.name}` ({len(rs)} rows used): git {m.get('git_commit', '?')}, "
                    f"prompt hashes {m.get('prompt_hashes', {})}")
     out += ["- label_mass = probability on label tokens before renormalising"
             + (" (Ollama: top-20 logprobs only, so a lower bound)." if ollama else ".")]
     out += [""] + (extra or [])
     if ("v3", "O1") in groups and ("v4", "O1") in groups:
         out += v4_decision_check(groups["v3", "O1"], groups["v4", "O1"])
+    if all(("v3", o) in groups for o in ALL_ORDERS):
+        out += order_decision_check({o: groups["v3", o] for o in ALL_ORDERS})
     out += ["## Headline", ""] + headline(groups)
 
     out += ["", "## Confusion matrices"]
@@ -298,8 +331,11 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Prompt comparison report")
     ap.add_argument("files", nargs="+", type=Path)
     ap.add_argument("--out", default=None, help="report name (without .report.md)")
+    ap.add_argument("--versions", nargs="+", default=None, help="keep only these prompt versions")
     args = ap.parse_args()
     sources = [(p, *load(p)) for p in args.files]
+    if args.versions:
+        sources = [(p, [r for r in rs if r["version"] in args.versions], m) for p, rs, m in sources]
     if len(sources) == 1 and not args.out:
         out, title = args.files[0].with_name(args.files[0].stem + ".report.md"), args.files[0].stem
     else:
