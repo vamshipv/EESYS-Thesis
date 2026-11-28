@@ -1,6 +1,6 @@
 # Step 1: Model Component contract + FakeModel
 
-Status: ready to build (planned 2026-11-24)
+Status: done (built 2026-11-24 evening, 13 new tests, 40/40 pass; commit 4666526)
 Build order: step 1 of 5 (component → Standardized Prediction → Model Interface → token deletion → runner + metrics)
 
 ## Read first
